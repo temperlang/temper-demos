@@ -1,6 +1,6 @@
-# Quasar App (client-js)
+# Temper Validation Demo (client-js)
 
-A Quasar Project
+Demo Temper-Built Validation Logic in JS Client
 
 ## Install the dependencies
 ```bash

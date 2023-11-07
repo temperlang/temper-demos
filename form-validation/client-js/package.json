@@ -1,9 +1,8 @@
 {
   "name": "client-js",
   "version": "0.0.1",
-  "description": "A Quasar Project",
-  "productName": "Quasar App",
-  "author": "Tom <tom@temper.systems>",
+  "description": "Demo Temper-Built Validation Logic in JS Client",
+  "productName": "Temper Validation Demo",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
