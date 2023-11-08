@@ -10,17 +10,15 @@
             name="minPrice"
             label="Min Price"
             v-model="minPrice"
-            :rules="[
-              (val) => !val || !isNaN(parseFloat(val)) || 'Must be numeric',
-            ]"
+            reactive-rules
+            :rules="[numeric]"
           />
           <q-input
             name="maxPrice"
             label="Max Price"
             v-model="maxPrice"
-            :rules="[
-              (val) => !val || !isNaN(parseFloat(val)) || 'Must be numeric',
-            ]"
+            reactive-rules
+            :rules="[numeric]"
           />
         </q-card-section>
         <q-card-section>
@@ -43,6 +41,10 @@
 // import ExampleComponent from 'components/ExampleComponent.vue';
 import { defineComponent, ref } from 'vue';
 
+function numeric(val: string): boolean | string {
+  return !val || !isNaN(parseFloat(val)) || 'Must be numeric';
+}
+
 export default defineComponent({
   name: 'IndexPage',
   components: {
@@ -52,6 +54,7 @@ export default defineComponent({
     return {
       maxPrice: ref<number>(),
       minPrice: ref<number>(),
+      numeric,
     };
   },
 });
