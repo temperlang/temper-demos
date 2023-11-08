@@ -11,14 +11,14 @@
             label="Min Value"
             v-model="form.minValue"
             reactive-rules
-            :rules="[numeric, validate(form, 'minValue')]"
+            :rules="[validate(form, 'minValue')]"
           />
           <q-input
             name="maxValue"
             label="Max Value"
             v-model="form.maxValue"
             reactive-rules
-            :rules="[numeric, validate(form, 'maxValue')]"
+            :rules="[validate(form, 'maxValue')]"
           />
         </q-card-section>
         <q-card-section>
