@@ -3,26 +3,26 @@
     <q-form>
       <q-card style="min-width: 300px">
         <q-card-section class="q-pb-none">
-          <h5>Product Search</h5>
+          <h5>Specification</h5>
         </q-card-section>
         <q-card-section>
           <q-input
-            name="minPrice"
-            label="Min Price"
-            v-model="minPrice"
+            name="minValue"
+            label="Min Value"
+            v-model="form.minValue"
             reactive-rules
-            :rules="[numeric]"
+            :rules="[numeric, validate(form)]"
           />
           <q-input
-            name="maxPrice"
-            label="Max Price"
-            v-model="maxPrice"
+            name="maxValue"
+            label="Max Value"
+            v-model="form.maxValue"
             reactive-rules
-            :rules="[numeric]"
+            :rules="[numeric, validate(form)]"
           />
         </q-card-section>
         <q-card-section>
-          <q-btn name="submit" label="Search" color="primary" />
+          <q-btn name="submit" label="Submit" color="primary" />
         </q-card-section>
       </q-card>
     </q-form>
@@ -45,6 +45,20 @@ function numeric(val: string): boolean | string {
   return !val || !isNaN(parseFloat(val)) || 'Must be numeric';
 }
 
+function validate(form: Form): () => boolean | string {
+  return () => {
+    return (
+      (form.maxValue || Infinity) >= (form.minValue || 0) ||
+      "Min can't be above max"
+    );
+  };
+}
+
+type Form = {
+  maxValue: number | undefined;
+  minValue: number | undefined;
+};
+
 export default defineComponent({
   name: 'IndexPage',
   components: {
@@ -52,9 +66,12 @@ export default defineComponent({
   },
   setup() {
     return {
-      maxPrice: ref<number>(),
-      minPrice: ref<number>(),
+      form: ref({
+        maxValue: ref<number>(),
+        minValue: ref<number>(),
+      }),
       numeric,
+      validate,
     };
   },
 });
