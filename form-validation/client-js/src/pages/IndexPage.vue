@@ -11,14 +11,14 @@
             label="Min Value"
             v-model="form.minValue"
             reactive-rules
-            :rules="[numeric, validate(form)]"
+            :rules="[numeric, validate(form, 'minValue')]"
           />
           <q-input
             name="maxValue"
             label="Max Value"
             v-model="form.maxValue"
             reactive-rules
-            :rules="[numeric, validate(form)]"
+            :rules="[numeric, validate(form, 'maxValue')]"
           />
         </q-card-section>
         <q-card-section>
@@ -45,18 +45,37 @@ function numeric(val: string): boolean | string {
   return !val || !isNaN(parseFloat(val)) || 'Must be numeric';
 }
 
-function validate(form: Form): () => boolean | string {
-  return () => {
-    return (
-      (form.maxValue || Infinity) >= (form.minValue || 0) ||
-      "Min can't be above max"
-    );
+function minBelowMax(val: string, form: Form): boolean | string {
+  return (
+    (parseFloat(form.maxValue ?? '') || Infinity) >=
+      (parseFloat(form.minValue ?? '') || 0) || "Min can't be above max"
+  );
+}
+
+const rulesByName = {
+  minValue: [numeric, minBelowMax],
+  maxValue: [numeric, minBelowMax],
+};
+
+function validate(
+  form: Form,
+  name: keyof typeof rulesByName
+): (val: string) => boolean | string {
+  const rules = rulesByName[name];
+  return (val: string) => {
+    for (const rule of rules) {
+      const result = rule(val, form);
+      if (result !== true) {
+        return result;
+      }
+    }
+    return true;
   };
 }
 
 type Form = {
-  maxValue: number | undefined;
-  minValue: number | undefined;
+  maxValue: string | undefined;
+  minValue: string | undefined;
 };
 
 export default defineComponent({
@@ -67,8 +86,8 @@ export default defineComponent({
   setup() {
     return {
       form: ref({
-        maxValue: ref<number>(),
-        minValue: ref<number>(),
+        maxValue: ref(),
+        minValue: ref(),
       }),
       numeric,
       validate,
