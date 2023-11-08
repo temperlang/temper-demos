@@ -1,13 +1,27 @@
 <template>
   <q-page class="row items-start justify-evenly q-pa-xl">
     <q-form>
-      <q-card>
+      <q-card style="min-width: 300px">
         <q-card-section class="q-pb-none">
           <h5>Product Search</h5>
         </q-card-section>
         <q-card-section>
-          <q-input name="minPrice" label="Min Price" model-value="" />
-          <q-input name="maxPrice" label="Max Price" model-value="" />
+          <q-input
+            name="minPrice"
+            label="Min Price"
+            v-model="minPrice"
+            :rules="[
+              (val) => !val || !isNaN(parseFloat(val)) || 'Must be numeric',
+            ]"
+          />
+          <q-input
+            name="maxPrice"
+            label="Max Price"
+            v-model="maxPrice"
+            :rules="[
+              (val) => !val || !isNaN(parseFloat(val)) || 'Must be numeric',
+            ]"
+          />
         </q-card-section>
         <q-card-section>
           <q-btn name="submit" label="Search" color="primary" />
@@ -35,33 +49,10 @@ export default defineComponent({
     // ExampleComponent,
   },
   setup() {
-    // const todos = ref<Todo[]>([
-    //   {
-    //     id: 1,
-    //     content: 'ct1',
-    //   },
-    //   {
-    //     id: 2,
-    //     content: 'ct2',
-    //   },
-    //   {
-    //     id: 3,
-    //     content: 'ct3',
-    //   },
-    //   {
-    //     id: 4,
-    //     content: 'ct4',
-    //   },
-    //   {
-    //     id: 5,
-    //     content: 'ct5',
-    //   },
-    // ]);
-    // const meta = ref<Meta>({
-    //   totalCount: 1200,
-    // });
-    // return { todos, meta };
-    return {};
+    return {
+      maxPrice: ref<number>(),
+      minPrice: ref<number>(),
+    };
   },
 });
 </script>
