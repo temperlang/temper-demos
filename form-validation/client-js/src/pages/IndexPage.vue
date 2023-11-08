@@ -47,8 +47,8 @@ function numeric(val: string): boolean | string {
 
 function minBelowMax(val: string, form: Form): boolean | string {
   return (
-    (parseFloat(form.maxValue ?? '') || Infinity) >=
-      (parseFloat(form.minValue ?? '') || 0) || "Min can't be above max"
+    (parseFloat(form.maxValue) || Infinity) >=
+      (parseFloat(form.minValue) || 0) || "Min can't be above max"
   );
 }
 
@@ -74,8 +74,8 @@ function validate(
 }
 
 type Form = {
-  maxValue: string | undefined;
-  minValue: string | undefined;
+  maxValue: string;
+  minValue: string;
 };
 
 export default defineComponent({
