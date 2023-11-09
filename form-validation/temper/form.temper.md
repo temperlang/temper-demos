@@ -1,31 +1,49 @@
-    export let ErrorMessage = String;
+# Temper Form Validation Demo
+
+## Form
+
+This represents arbitrary data for business needs. We might should find a more
+specific example that's still easy to imagine how it applies generally.
 
     export class Form {
       public minValue: Float64;
       public maxValue: Float64;
     }
 
+## Validation
+
+For simplicity, just use strings for error reporting.
+
+    export let ErrorMessage = String;
+
+Export a variety of functions that can be used in different contexts. We might
+want to validate all before submitting or accepting a submission.
+
     export let validateAll(form: Form): ErrorMessage | Null {
       runValidations(
         form,
-        [minValid, maxValid, validateMinMaxValues],
+        [minValid, maxValid, minNotAboveMax],
       )
     }
 
+Or we might validate individual fields when interactive. Note that some
+validations apply to multiple fields.
+
     export let validateMinValue(form: Form): ErrorMessage | Null {
-      runValidations(form, [minNonNegative, validateMinMaxValues])
+      runValidations(form, [minNonNegative, minNotAboveMax])
     }
 
     export let validateMaxValue(form: Form): ErrorMessage | Null {
-      runValidations(form, [maxNonNegative, validateMinMaxValues])
+      runValidations(form, [maxNonNegative, minNotAboveMax])
     }
 
-    export let validateMinMaxValues(form: Form): ErrorMessage | Null {
-      if (form.minValue > form.maxValue) {
-        return "Min can't be above max";
-      }
-      null
-    }
+## Internal Validation Logic
+
+We don't need to export specific rules, just appropriate combos above. From here
+down, give specifics that are used by the exported combos.
+
+These still might have multiple validations but should only apply to individual
+fields, not combinations of fields.
 
     let minValid(form: Form): ErrorMessage | Null {
       runValidations(form, [minNonNegative])
@@ -42,6 +60,20 @@
     let maxNonNegative = validateLowerLimit("Max value", 0.0) { (form);;
       form.maxValue
     };
+
+And here's a combo validation.
+
+    let minNotAboveMax(form: Form): ErrorMessage | Null {
+      if (form.minValue > form.maxValue) {
+        return "Min can't be above max";
+      }
+      null
+    }
+
+## Machinery
+
+Here we have general validation machinery and support functions used for
+building rules.
 
     let Validation = fn (Form): String | Null;
 
