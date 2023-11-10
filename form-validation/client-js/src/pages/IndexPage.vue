@@ -36,12 +36,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { QVueGlobals, useQuasar } from 'quasar';
 import {
   Form,
   validateMinValue,
   validateMaxValue,
 } from 'temper-validation-demo/form.js';
+import { defineComponent, ref } from 'vue';
 
 function numeric(val: string): boolean | string {
   return !val || !isNaN(Number(val)) || 'Must be numeric';
@@ -50,6 +51,11 @@ function numeric(val: string): boolean | string {
 type RawForm = {
   minValue: string;
   maxValue: string;
+};
+
+type Response = {
+  errors?: string[];
+  message?: string;
 };
 
 function applyValidation(
@@ -97,7 +103,7 @@ function stringify(object: unknown): string {
   });
 }
 
-const helpers = {
+const rules = {
   validateMinValue(rawForm: RawForm) {
     return applyValidation(rawForm, 'minValue', validateMinValue);
   },
@@ -106,38 +112,52 @@ const helpers = {
   },
 };
 
-async function submit(rawForm: RawForm) {
-  const response: unknown = await (
+async function submit($q: QVueGlobals, rawForm: RawForm) {
+  const response: Response = await (
     await fetch('http://localhost:8000/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: stringify(parseFormObject(rawForm)),
     })
   ).json();
-  console.log(response);
+  if (response.errors) {
+    $q.notify({
+      message: response.errors.join(', '),
+      type: 'negative',
+    });
+  } else if (response.message) {
+    $q.notify({
+      message: response.message,
+      type: 'positive',
+    })
+  } else {
+    console.log(response);
+  }
 }
 
-function submitIfInvalid(form: RawForm) {
+function submitIfInvalid($q: QVueGlobals, form: RawForm) {
   // This is a hack to allow submission even if invalid.
-  const anyInvalid = [helpers.validateMinValue, helpers.validateMaxValue].find(
+  const anyInvalid = [rules.validateMinValue, rules.validateMaxValue].find(
     (rule) => rule(form) !== true
   );
   if (anyInvalid) {
-    submit(form);
+    submit($q, form);
   }
 }
 
 export default defineComponent({
   name: 'IndexPage',
   setup() {
+    const $q = useQuasar();
+    console.log($q);
     return {
       form: ref({
         maxValue: ref(),
         minValue: ref(),
       }),
-      submit,
-      submitIfInvalid,
-      ...helpers,
+      submit: (rawForm: RawForm) => submit($q, rawForm),
+      submitIfInvalid: (rawForm: RawForm) => submitIfInvalid($q, rawForm),
+      ...rules,
     };
   },
 });

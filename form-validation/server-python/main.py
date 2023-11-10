@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from temper_validation_demo.form import Form
+from temper_validation_demo.form import Form, validate_all
 
 
 app = FastAPI()
@@ -21,4 +22,12 @@ class RawForm(BaseModel):
 @app.post("/")
 def post_form(form: RawForm):
     print(form)
-    return {}
+    errors = validate(form)
+    if errors:
+        return JSONResponse(status_code=422, content={"errors": errors})
+    return {"message": "Form processed"}
+
+
+def validate(raw_form: RawForm):
+    form = Form(raw_form.minValue, raw_form.maxValue)
+    return validate_all(form)
