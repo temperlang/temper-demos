@@ -26,19 +26,10 @@
         </q-card-section>
       </q-card>
     </q-form>
-    <!-- <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component> -->
   </q-page>
 </template>
 
 <script lang="ts">
-// import { P } from 'app/dist/spa/assets/index.9f261a1d';
-// import { Todo, Meta } from 'components/models';
-// import ExampleComponent from 'components/ExampleComponent.vue';
 import { defineComponent, ref } from 'vue';
 import {
   Form,
@@ -47,36 +38,8 @@ import {
 } from 'temper-validation-demo/form.js';
 
 function numeric(val: string): boolean | string {
-  return !val || !isNaN(parseFloat(val)) || 'Must be numeric';
+  return !val || !isNaN(Number(val)) || 'Must be numeric';
 }
-
-// function minBelowMax(val: string, form: Form): boolean | string {
-//   return (
-//     (parseFloat(form.maxValue) || Infinity) >=
-//       (parseFloat(form.minValue) || 0) || "Min can't be above max"
-//   );
-// }
-
-// const rulesByName = {
-//   minValue: [numeric, minBelowMax],
-//   maxValue: [numeric, minBelowMax],
-// };
-
-// function validate(
-//   form: Form,
-//   name: keyof typeof rulesByName
-// ): (val: string) => boolean | string {
-//   const rules = rulesByName[name];
-//   return (val: string) => {
-//     for (const rule of rules) {
-//       const result = rule(val, form);
-//       if (result !== true) {
-//         return result;
-//       }
-//     }
-//     return true;
-//   };
-// }
 
 type RawForm = {
   minValue: string;
@@ -113,9 +76,6 @@ function parseNumeric(val: string): number | undefined {
 
 export default defineComponent({
   name: 'IndexPage',
-  components: {
-    // ExampleComponent,
-  },
   setup() {
     return {
       form: ref({
