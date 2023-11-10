@@ -44,10 +44,6 @@ import {
 } from 'temper-validation-demo/form.js';
 import { defineComponent, ref } from 'vue';
 
-function numeric(val: string): boolean | string {
-  return !val || !isNaN(Number(val)) || 'Must be numeric';
-}
-
 type RawForm = {
   minValue: string;
   maxValue: string;
@@ -63,11 +59,6 @@ function applyValidation(
   key: keyof RawForm,
   validation: (form: Form) => Array<string>
 ): string | true {
-  // Validate the focus field for being numeric.
-  const error = numeric(rawForm[key]);
-  if (typeof error == 'string') {
-    return error;
-  }
   // Given at least that, process common validation.
   const form = parseForm(rawForm);
   const errors = validation(form);
@@ -121,16 +112,11 @@ async function submit($q: QVueGlobals, rawForm: RawForm) {
     })
   ).json();
   if (response.errors) {
-    $q.notify({
-      message: response.errors.join(', '),
-      type: 'negative',
-    });
+    $q.notify({ message: response.errors.join(', '), type: 'negative' });
   } else if (response.message) {
-    $q.notify({
-      message: response.message,
-      type: 'positive',
-    })
+    $q.notify({ message: response.message, type: 'positive' });
   } else {
+    $q.notify({ message: 'Unexpected response', type: 'negative' });
     console.log(response);
   }
 }

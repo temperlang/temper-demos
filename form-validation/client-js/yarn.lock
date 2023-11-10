@@ -164,6 +164,13 @@
   resolved "https://registry.yarnpkg.com/@temperlang/core/-/core-0.0.6.tgz#4db984a71fa4495016c286e54af3c34df70247af"
   integrity sha512-IXNs5APp6e4Uqw1wRVXrsLzojfeJvTHHN1Z+dda/ByxwqOHCxBd3PUc4TF/y4TTG8AJ2F63vT//eURa8ym1YIQ==
 
+"@temperlang/std@0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@temperlang/std/-/std-0.0.6.tgz#06e92579222e368ea80168f1705bda18b43f406b"
+  integrity sha512-D/yRwpWmz1tCCuRFR4TUlR6SUflFVlNuLuK11BqG94s2PLFOBWF5AzR8hDK+an12lgzxnXFKXfCwBoh+B0AMUA==
+  dependencies:
+    "@temperlang/core" "0.0.6"
+
 "@types/body-parser@*":
   version "1.19.5"
   resolved "https://registry.yarnpkg.com/@types/body-parser/-/body-parser-1.19.5.tgz#04ce9a3b677dc8bd681a17da1ab9835dc9d3ede4"
@@ -2829,6 +2836,13 @@ tar-stream@^2.2.0:
   version "0.0.1"
   dependencies:
     "@temperlang/core" "0.0.6"
+    "@temperlang/std" "0.0.6"
+
+"temper-validation-demo@file:../temper/temper.out/js/temper-validation-demo/":
+  version "0.0.1"
+  dependencies:
+    "@temperlang/core" "0.0.6"
+    "@temperlang/std" "0.0.6"
 
 text-table@^0.2.0:
   version "0.2.0"

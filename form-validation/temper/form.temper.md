@@ -45,8 +45,10 @@ while listing only one rule at most.
 
     let ruleMap = new Map([
       new Pair("maxNonNegative", maxNonNegative),
+      new Pair("maxNumeric", maxNumeric),
       new Pair("minNonNegative", minNonNegative),
       new Pair("minNotAboveMax", minNotAboveMax),
+      new Pair("minNumeric", minNumeric),
     ]);
 
 Map to strings rather than functions in case we want to use rule names as keys.
@@ -55,10 +57,12 @@ Map to strings rather than functions in case we want to use rule names as keys.
       new Pair("maxValue", [
         "maxNonNegative",
         "minNotAboveMax",
+        "maxNumeric",
       ]),
       new Pair("minValue", [
         "minNonNegative",
         "minNotAboveMax",
+        "minNumeric",
       ]),
     ]);
 
@@ -77,10 +81,12 @@ specific subsets of fields.
 
 Here's where we actually implement individual rules.
 
+    let minNumeric = validateNumeric("Min value") { (form);; form.minValue };
     let minNonNegative = validateLowerLimit("Min value", 0.0) { (form);;
       form.minValue
     };
 
+    let maxNumeric = validateNumeric("Max value") { (form);; form.maxValue };
     let maxNonNegative = validateLowerLimit("Max value", 0.0) { (form);;
       form.maxValue
     };
@@ -118,7 +124,18 @@ building rules.
       fn (form: Form): List<ErrorMessage> {
         let value = getValue(form);
         if (value < limit) {
-          ["${name} ${value.toString()} can't be below ${limit.toString()}"]
+          ["${name} can't be below ${limit.toString()}"]
+        } else {
+          []
+        }
+      }
+    }
+
+    let validateNumeric(name: String, getValue: fn (Form): Float64): Rule {
+      fn (form: Form): List<ErrorMessage> {
+        let value = getValue(form);
+        if (value == NaN || value != value) {
+          ["${name} must be numeric"]
         } else {
           []
         }

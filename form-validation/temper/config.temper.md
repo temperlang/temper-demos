@@ -7,3 +7,4 @@ programming languages.
     export let version = "0.0.1";
 
     import("./form");
+    import("./test");
