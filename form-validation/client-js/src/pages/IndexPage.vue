@@ -27,7 +27,7 @@
             name="submit"
             label="Submit"
             color="primary"
-            @click="submit(form)"
+            @click="submitIfInvalid(form)"
           />
         </q-card-section>
       </q-card>
@@ -56,7 +56,7 @@ function applyValidation(
   rawForm: RawForm,
   key: keyof RawForm,
   validation: (form: Form) => Array<string>
-) {
+): string | true {
   // Validate the focus field for being numeric.
   const error = numeric(rawForm[key]);
   if (typeof error == 'string') {
@@ -97,9 +97,34 @@ function stringify(object: unknown): string {
   });
 }
 
-function submit(rawForm: RawForm) {
-  const encoded = stringify(parseFormObject(rawForm));
-  console.log(encoded);
+const helpers = {
+  validateMinValue(rawForm: RawForm) {
+    return applyValidation(rawForm, 'minValue', validateMinValue);
+  },
+  validateMaxValue(rawForm: RawForm) {
+    return applyValidation(rawForm, 'maxValue', validateMaxValue);
+  },
+};
+
+async function submit(rawForm: RawForm) {
+  const response: unknown = await (
+    await fetch('http://localhost:8000/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: stringify(parseFormObject(rawForm)),
+    })
+  ).json();
+  console.log(response);
+}
+
+function submitIfInvalid(form: RawForm) {
+  // This is a hack to allow submission even if invalid.
+  const anyInvalid = [helpers.validateMinValue, helpers.validateMaxValue].find(
+    (rule) => rule(form) !== true
+  );
+  if (anyInvalid) {
+    submit(form);
+  }
 }
 
 export default defineComponent({
@@ -111,12 +136,8 @@ export default defineComponent({
         minValue: ref(),
       }),
       submit,
-      validateMinValue(rawForm: RawForm) {
-        return applyValidation(rawForm, 'minValue', validateMinValue);
-      },
-      validateMaxValue(rawForm: RawForm) {
-        return applyValidation(rawForm, 'maxValue', validateMaxValue);
-      },
+      submitIfInvalid,
+      ...helpers,
     };
   },
 });
