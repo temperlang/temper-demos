@@ -1,6 +1,6 @@
 <template>
   <q-page class="row items-start justify-evenly q-pa-xl">
-    <q-form>
+    <q-form @submit="submit(form)">
       <q-card style="min-width: 300px">
         <q-card-section class="q-pb-none">
           <h5>Specification</h5>
@@ -22,7 +22,13 @@
           />
         </q-card-section>
         <q-card-section>
-          <q-btn name="submit" label="Submit" color="primary" />
+          <q-btn
+            type="submit"
+            name="submit"
+            label="Submit"
+            color="primary"
+            @click="submit(form)"
+          />
         </q-card-section>
       </q-card>
     </q-form>
@@ -63,15 +69,37 @@ function applyValidation(
   return errors.length ? errors[0] : true;
 }
 
+function parseFormObject(rawForm: RawForm): Form {
+  return {
+    minValue: parseNumeric(rawForm.minValue) ?? 0,
+    maxValue: parseNumeric(rawForm.maxValue) ?? Infinity,
+  };
+}
+
 function parseForm(rawForm: RawForm): Form {
-  return new Form(
-    parseNumeric(rawForm.minValue) ?? 0,
-    parseNumeric(rawForm.maxValue) ?? Infinity
-  );
+  let object = parseFormObject(rawForm);
+  return new Form(object.minValue, object.maxValue);
 }
 
 function parseNumeric(val: string): number | undefined {
   return val ? Number(val) : undefined;
+}
+
+function stringify(object: unknown): string {
+  return JSON.stringify(object, (_, value: string) => {
+    return (
+      {
+        Infinity: 'Infinity',
+        [-Infinity]: '-Infinity',
+        NaN: 'NaN',
+      }[value] ?? value
+    );
+  });
+}
+
+function submit(rawForm: RawForm) {
+  const encoded = stringify(parseFormObject(rawForm));
+  console.log(encoded);
 }
 
 export default defineComponent({
@@ -82,7 +110,7 @@ export default defineComponent({
         maxValue: ref(),
         minValue: ref(),
       }),
-      numeric,
+      submit,
       validateMinValue(rawForm: RawForm) {
         return applyValidation(rawForm, 'minValue', validateMinValue);
       },
