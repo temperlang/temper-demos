@@ -11,14 +11,14 @@
             label="Min Value"
             v-model="form.minValue"
             reactive-rules
-            :rules="[validate(form, 'minValue')]"
+            :rules="[() => validateMinValue(form)]"
           />
           <q-input
             name="maxValue"
             label="Max Value"
             v-model="form.maxValue"
             reactive-rules
-            :rules="[validate(form, 'maxValue')]"
+            :rules="[() => validateMaxValue(form)]"
           />
         </q-card-section>
         <q-card-section>
@@ -40,43 +40,76 @@
 // import { Todo, Meta } from 'components/models';
 // import ExampleComponent from 'components/ExampleComponent.vue';
 import { defineComponent, ref } from 'vue';
+import {
+  Form,
+  validateMinValue,
+  validateMaxValue,
+} from 'temper-validation-demo/form.js';
 
 function numeric(val: string): boolean | string {
   return !val || !isNaN(parseFloat(val)) || 'Must be numeric';
 }
 
-function minBelowMax(val: string, form: Form): boolean | string {
-  return (
-    (parseFloat(form.maxValue) || Infinity) >=
-      (parseFloat(form.minValue) || 0) || "Min can't be above max"
+// function minBelowMax(val: string, form: Form): boolean | string {
+//   return (
+//     (parseFloat(form.maxValue) || Infinity) >=
+//       (parseFloat(form.minValue) || 0) || "Min can't be above max"
+//   );
+// }
+
+// const rulesByName = {
+//   minValue: [numeric, minBelowMax],
+//   maxValue: [numeric, minBelowMax],
+// };
+
+// function validate(
+//   form: Form,
+//   name: keyof typeof rulesByName
+// ): (val: string) => boolean | string {
+//   const rules = rulesByName[name];
+//   return (val: string) => {
+//     for (const rule of rules) {
+//       const result = rule(val, form);
+//       if (result !== true) {
+//         return result;
+//       }
+//     }
+//     return true;
+//   };
+// }
+
+type RawForm = {
+  minValue: string;
+  maxValue: string;
+};
+
+function applyValidation(
+  rawForm: RawForm,
+  key: keyof RawForm,
+  validation: (form: Form) => Array<string>
+) {
+  // Validate the focus field for being numeric.
+  const error = numeric(rawForm[key]);
+  if (typeof error == 'string') {
+    return error;
+  }
+  // Given at least that, process common validation.
+  const form = parseForm(rawForm);
+  const errors = validation(form);
+  // Just return one error at most for interactive.
+  return errors.length ? errors[0] : true;
+}
+
+function parseForm(rawForm: RawForm): Form {
+  return new Form(
+    parseNumeric(rawForm.minValue) ?? 0,
+    parseNumeric(rawForm.maxValue) ?? Infinity
   );
 }
 
-const rulesByName = {
-  minValue: [numeric, minBelowMax],
-  maxValue: [numeric, minBelowMax],
-};
-
-function validate(
-  form: Form,
-  name: keyof typeof rulesByName
-): (val: string) => boolean | string {
-  const rules = rulesByName[name];
-  return (val: string) => {
-    for (const rule of rules) {
-      const result = rule(val, form);
-      if (result !== true) {
-        return result;
-      }
-    }
-    return true;
-  };
+function parseNumeric(val: string): number | undefined {
+  return val ? Number(val) : undefined;
 }
-
-type Form = {
-  maxValue: string;
-  minValue: string;
-};
 
 export default defineComponent({
   name: 'IndexPage',
@@ -90,7 +123,12 @@ export default defineComponent({
         minValue: ref(),
       }),
       numeric,
-      validate,
+      validateMinValue(rawForm: RawForm) {
+        return applyValidation(rawForm, 'minValue', validateMinValue);
+      },
+      validateMaxValue(rawForm: RawForm) {
+        return applyValidation(rawForm, 'maxValue', validateMaxValue);
+      },
     };
   },
 });
