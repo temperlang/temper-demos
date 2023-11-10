@@ -2825,7 +2825,7 @@ tar-stream@^2.2.0:
     inherits "^2.0.3"
     readable-stream "^3.1.1"
 
-"temper-validation-demo@file:../temper/temper.out/js/temper-validation-demo/":
+"temper-validation-demo@file:../temper/temper.out/js/temper-validation-demo":
   version "0.0.1"
   dependencies:
     "@temperlang/core" "0.0.6"

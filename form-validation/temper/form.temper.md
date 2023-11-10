@@ -20,38 +20,62 @@ Export a variety of functions that can be used in different contexts. We might
 want to validate all before submitting or accepting a submission.
 
     export let validateAll(form: Form): List<ErrorMessage> {
-      runValidations(
-        form,
-        [minValid, maxValid, minNotAboveMax],
-      )
+      runRules(form, allRules)
     }
 
 Or we might validate individual fields when interactive. Note that some
 validations apply to multiple fields.
 
     export let validateMinValue(form: Form): List<ErrorMessage> {
-      runValidations(form, [minNonNegative, minNotAboveMax])
+      runRules(form, minValueRules)
     }
 
     export let validateMaxValue(form: Form): List<ErrorMessage> {
-      runValidations(form, [maxNonNegative, minNotAboveMax])
+      runRules(form, maxValueRules)
     }
 
-## Internal Validation Logic
+## Internal Rule Tables
 
 We don't need to export specific rules, just appropriate combos above. From here
 down, give specifics that are used by the exported combos.
 
 These still might have multiple validations but should only apply to individual
-fields, not combinations of fields.
+fields, not combinations of fields. These maps enable arbitrary combos of rules
+while listing only one rule at most.
 
-    let minValid(form: Form): List<ErrorMessage> {
-      runValidations(form, [minNonNegative])
-    }
+    let ruleMap = new Map([
+      new Pair("maxNonNegative", maxNonNegative),
+      new Pair("minNonNegative", minNonNegative),
+      new Pair("minNotAboveMax", minNotAboveMax),
+    ]);
 
-    let maxValid(form: Form): List<ErrorMessage> {
-      runValidations(form, [maxNonNegative])
-    }
+Map to strings rather than functions in case we want to use rule names as keys.
+
+    let fieldRuleMap = new Map([
+      new Pair("maxValue", [
+        "maxNonNegative",
+        "minNotAboveMax",
+      ]),
+      new Pair("minValue", [
+        "minNonNegative",
+        "minNotAboveMax",
+      ]),
+    ]);
+
+We can cache different combinations here. This could potentially include
+specific subsets of fields.
+
+    let allRules = ruleMap.toList().map { (pair): Rule;; pair.value };
+
+    let minValueRules =
+      fieldRuleMap["minValue"].map { (name): Rule;; ruleMap[name] };
+
+    let maxValueRules =
+      fieldRuleMap["maxValue"].map { (name): Rule;; ruleMap[name] };
+
+## Internal Rule Implementation
+
+Here's where we actually implement individual rules.
 
     let minNonNegative = validateLowerLimit("Min value", 0.0) { (form);;
       form.minValue
@@ -76,10 +100,10 @@ And here's a combo validation.
 Here we have general validation machinery and support functions used for
 building rules.
 
-    let Validation = fn (Form): List<ErrorMessage>;
+    let Rule = fn (Form): List<ErrorMessage>;
 
-    let runValidations(
-      form: Form, validations: Listed<Validation>
+    let runRules(
+      form: Form, validations: Listed<Rule>
     ): List<ErrorMessage> {
       let errors = new ListBuilder<ErrorMessage>();
       for (var i = 0; i < validations.length; i += 1) {
@@ -90,13 +114,11 @@ building rules.
 
     let validateLowerLimit(
       name: String, limit: Float64, getValue: fn (Form): Float64
-    ): Validation {
+    ): Rule {
       fn (form: Form): List<ErrorMessage> {
         let value = getValue(form);
         if (value < limit) {
-          [
-            "${name} ${value.toString()} can't be below ${limit.toString()}",
-          ]
+          ["${name} ${value.toString()} can't be below ${limit.toString()}"]
         } else {
           []
         }
