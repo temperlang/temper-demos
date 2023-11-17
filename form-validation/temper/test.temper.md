@@ -3,13 +3,13 @@
 ## Tests of Good Data
 
     test("good forms") {
-      assert(validateAll(new Form(0.0, Infinity)).length == 0);
+      assert(validateAll(new Form(0.1, 2.5)).length == 0);
     }
 
 ## Tests of Bad Data
 
     test("bad forms") {
-      let negativeMin = validateAll(new Form(-1.0, 1.5));
+      let negativeMin = validateAll(new Form(-1.0, 7.5));
       assert(negativeMin.length == 1);
       assert(negativeMin[0] == "Min value can't be below 0.0");
 
