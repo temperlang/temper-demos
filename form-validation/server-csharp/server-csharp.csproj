@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <ProjectReference Include="../temper/temper.out/csharp/temper-validation-demo/TemperValidationDemo.csproj"/>
   </ItemGroup>
 
 </Project>

@@ -1,12 +1,13 @@
-using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using TemperValidationDemo.Form;
 
 namespace ServerCSharp
 {
     record RawForm(double MinValue, double MaxValue);
-
-    record Result(string Message);
 
     static class Program
     {
@@ -19,11 +20,20 @@ namespace ServerCSharp
                 (RawForm form) =>
                 {
                     Console.WriteLine(form);
-                    return new Result(Message: "Form processed in C#");
+                    var errors = Validate(form);
+                    return errors.Count > 0
+                        ? Results.UnprocessableEntity(new { Errors = errors })
+                        : Results.Ok(new { Message = "Form processed in C#" });
                 }
             );
 
             app.Run();
+        }
+
+        static IReadOnlyList<string> Validate(RawForm rawForm)
+        {
+            var form = new Form(rawForm.MinValue, rawForm.MaxValue);
+            return FormGlobal.ValidateAll(form);
         }
 
         static WebApplication BuildApp(string[] args)
