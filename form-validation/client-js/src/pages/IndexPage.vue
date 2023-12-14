@@ -21,6 +21,17 @@
             :rules="[() => validateMaxValue(form)]"
           />
         </q-card-section>
+        <q-expansion-item label="Settings">
+          <q-card>
+            <q-card-section>
+              <q-select
+                label="server"
+                v-model="form.server"
+                :options="serverOptions"
+              />
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
         <q-card-section>
           <q-btn
             type="submit"
@@ -47,6 +58,7 @@ import { defineComponent, ref } from 'vue';
 type RawForm = {
   minValue: string;
   maxValue: string;
+  server: string;
 };
 
 type Response = {
@@ -103,9 +115,16 @@ const rules = {
   },
 };
 
+const serverPort = new Map(
+  Object.entries({
+    'C#': 5013,
+    Python: 8000,
+  })
+);
+
 async function submit($q: QVueGlobals, rawForm: RawForm) {
   const response: Response = await (
-    await fetch('http://localhost:8000/', {
+    await fetch(`http://localhost:${serverPort.get(rawForm.server)}/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: stringify(parseFormObject(rawForm)),
@@ -140,7 +159,9 @@ export default defineComponent({
       form: ref({
         maxValue: ref(),
         minValue: ref(),
+        server: ref('C#'),
       }),
+      serverOptions: ['C#', 'Python'],
       submit: (rawForm: RawForm) => submit($q, rawForm),
       submitIfInvalid: (rawForm: RawForm) => submitIfInvalid($q, rawForm),
       ...rules,
