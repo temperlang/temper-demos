@@ -1,14 +1,10 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
-using System;
 
 namespace ServerCSharp
 {
-    class RawForm
-    {
-        public double MinValue { get; set; }
-        public double MaxValue { get; set; }
-    }
+    record RawForm(double MinValue, double MaxValue);
 
     record Result(string Message);
 
@@ -34,7 +30,20 @@ namespace ServerCSharp
         {
             var version = "v0";
             var builder = WebApplication.CreateBuilder(args);
-            // Configure Swagger service.
+            // Add cors.
+            builder
+                .Services
+                .AddCors(options =>
+                {
+                    options.AddDefaultPolicy(
+                        builder =>
+                            builder
+                                .WithOrigins("http://localhost:9000")
+                                .AllowAnyMethod()
+                                .AllowAnyHeader()
+                    );
+                });
+            // Add Swagger service.
             builder.Services.AddEndpointsApiExplorer();
             builder
                 .Services
@@ -52,6 +61,8 @@ namespace ServerCSharp
                 });
             // Build app.
             var app = builder.Build();
+            // Use cors.
+            app.UseCors();
             // Use Swagger.
             app.UseSwagger();
             app.UseSwaggerUI(c =>
