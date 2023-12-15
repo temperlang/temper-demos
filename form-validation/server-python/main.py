@@ -25,7 +25,7 @@ def post_form(form: RawForm):
     errors = validate(form)
     if errors:
         return JSONResponse(status_code=422, content={"errors": errors})
-    return {"message": "Form processed"}
+    return {"message": "Form processed in Python"}
 
 
 def validate(raw_form: RawForm):

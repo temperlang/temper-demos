@@ -15,7 +15,7 @@ npm install
 ```bash
 yarn dev
 # or
-npm run lint
+npm run dev
 ```
 
 ### Lint the dev
