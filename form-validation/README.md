@@ -11,3 +11,10 @@ subdirs:
 - server-python/ - A Python web server using FastAPI
 - temper/ - The Temper validation framework and rules that get used in the other
   languages here
+
+## Videos
+
+Here are short videos showing this demo:
+
+- [JS & Python](https://youtu.be/jvYjnZSC0oo) (about 5 minutes)
+- [JS & C\#](https://youtu.be/6SXbHPwso70) (about 3 minutes)
